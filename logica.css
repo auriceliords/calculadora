@@ -1,0 +1,103 @@
+const pegarDados = {
+  valorInicial: '0',
+  operacao1: null,
+  operacao2: false,
+  operator: null,
+};
+
+function inputDigit(digit) {
+  const { valorInicial, operacao2 } = pegarDados;
+
+  if (operacao2 === true) {
+    pegarDados.valorInicial = digit;
+    pegarDados.operacao2 = false;
+  } else {
+    pegarDados.valorInicial = valorInicial === '0' ? digit : valorInicial + digit;
+  }
+}
+
+function inputDecimal(dot) {
+  // If the `valorInicial` does not contain a decimal point
+  if (!pegarDados.valorInicial.includes(dot)) {
+    // Append the decimal point
+    pegarDados.valorInicial += dot;
+  }
+}
+
+function handleOperator(nextOperator) {
+  const { operacao1, valorInicial, operator } = pegarDados
+  const inputValue = parseFloat(valorInicial);
+
+  if (operator && pegarDados.operacao2)  {
+    pegarDados.operator = nextOperator;
+    return;
+  }
+
+  if (operacao1 == null) {
+    pegarDados.operacao1 = inputValue;
+  } else if (operator) {
+    const currentValue = operacao1 || 0;
+    const result = performCalculation[operator](currentValue, inputValue);
+
+    pegarDados.valorInicial = String(result);
+    pegarDados.operacao1 = result;
+  }
+
+  pegarDados.operacao2 = true;
+  pegarDados.operator = nextOperator;
+}
+
+const performCalculation = {
+  '/': (operacao1, secondOperand) => operacao1 / secondOperand,
+
+  '*': (operacao1, secondOperand) => operacao1 * secondOperand,
+
+  '+': (operacao1, secondOperand) => operacao1 + secondOperand,
+
+  '-': (operacao1, secondOperand) => operacao1 - secondOperand,
+
+  '=': (operacao1, secondOperand) => secondOperand
+};
+
+function resetpegarDados() {
+  pegarDados.valorInicial = '0';
+  pegarDados.operacao1 = null;
+  pegarDados.operacao2 = false;
+  pegarDados.operator = null;
+}
+
+function atualizaCampo() {
+  const display = document.querySelector('.calculator-screen');
+  display.value = pegarDados.valorInicial;
+}
+
+atualizaCampo();
+
+const keys = document.querySelector('.botoes-calculadora');
+keys.addEventListener('click', (event) => {
+  const { target } = event;
+  if (!target.matches('button')) {
+    return;
+  }
+
+  if (target.classList.contains('operator')) {
+    handleOperator(target.value);
+		atualizaCampo();
+    return;
+  }
+
+  if (target.classList.contains('decimal')) {
+    inputDecimal(target.value);
+		atualizaCampo();
+    return;
+  }
+
+  if (target.classList.contains('zerar')) {
+    resetpegarDados();
+		atualizaCampo();
+    return;
+  }
+
+  inputDigit(target.value);
+  atualizaCampo();
+});
